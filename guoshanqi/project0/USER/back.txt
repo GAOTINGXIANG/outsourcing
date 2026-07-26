@@ -1,0 +1,216 @@
+#include "stm32f10x.h"
+int main(){
+RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC,ENABLE);
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);
+	
+GPIO_InitTypeDef GPIO1;
+	GPIO1.GPIO_Mode=GPIO_Mode_Out_PP;
+	GPIO1.GPIO_Pin=GPIO_Pin_13;
+	GPIO1.GPIO_Speed=GPIO_Speed_50MHz;
+TIM_TimeBaseInitTypeDef TIME3;
+  TIME3.TIM_ClockDivision=0;
+	TIME3.TIM_CounterMode=TIM_CounterMode_Up;
+	TIME3.TIM_Period=7199;
+	TIME3.TIM_Prescaler=4999;
+NVIC_InitTypeDef every1s;
+	every1s.NVIC_IRQChannel=TIM3_IRQn;
+	every1s.NVIC_IRQChannelCmd=ENABLE;
+	every1s.NVIC_IRQChannelPreemptionPriority=1;
+	every1s.NVIC_IRQChannelSubPriority=1;
+	
+GPIO_Init(GPIOC,&GPIO1);
+TIM_TimeBaseInit(TIM3,&TIME3);
+NVIC_Init(&every1s);
+
+
+TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE);	
+TIM_Cmd(TIM3,ENABLE);
+
+while(1){}
+}
+
+
+void TIM3_IRQHandler(){
+	if(TIM_GetITStatus(TIM3, TIM_IT_Update) == SET)
+    {
+    static int i=0; 
+    if(i==0){
+			GPIO_WriteBit(GPIOC,GPIO_Pin_13,Bit_SET);
+		  i=1;
+		        }
+		else{
+			GPIO_WriteBit(GPIOC,GPIO_Pin_13,Bit_RESET);	
+		  i=0;      
+		         }
+		
+    TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+//#include "stm32f10x.h"
+//void GPIO_Config(void);   // PC13引脚初始化
+//void TIM3_Config(void);   // 定时器3配置（1秒定时）
+//void GPIO_Config(void)
+//{
+//    GPIO_InitTypeDef GPIO_InitStruct;
+//    
+//    // 开启GPIOC时钟
+//    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+//    
+//    // 配置PC13为推挽输出
+
+
+
+//    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13;
+//    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;  // 推挽输出
+//    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz; // 输出速率50MHz
+//    GPIO_Init(GPIOC, &GPIO_InitStruct);
+//    
+//    // 初始状态：LED熄灭（PC13默认高电平，低电平点亮）
+//    GPIO_SetBits(GPIOC, GPIO_Pin_13);
+//}
+//void TIM3_Config(void)
+//{
+//    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+//    NVIC_InitTypeDef NVIC_InitStruct;
+//    
+//    // 1. 开启定时器3时钟
+//    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+//    
+//    // 2. 配置定时器基本参数（1秒定时）
+//    // 预分频系数：72MHz / (7199+1) = 10kHz
+//    TIM_TimeBaseInitStruct.TIM_Prescaler = 7199;
+//    // 自动重装值：10kHz / (9999+1) = 1Hz → 周期1秒
+//    TIM_TimeBaseInitStruct.TIM_Period = 9999;
+//    TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数
+//    TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;    // 时钟分割
+//    TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;           // 重复计数（通用定时器无需配置）
+//    TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStruct);
+//    // 3. 开启定时器更新中断
+//    TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+//    
+//    // 4. 配置NVIC中断优先级
+//    NVIC_InitStruct.NVIC_IRQChannel = TIM3_IRQn;               // 定时器3中断通道
+//    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;     // 抢占优先级1
+//    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 1;            // 子优先级1
+//    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;               // 使能中断通道
+//    NVIC_Init(&NVIC_InitStruct);
+//    
+//    // 5. 启动定时器3
+//    TIM_Cmd(TIM3, ENABLE);
+//}
+//// 定时器3中断服务函数
+//void TIM3_IRQHandler(void)
+//{
+//    // 检查定时器更新中断标志位
+//    if(TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
+//    {
+//        // 翻转PC13电平（实现LED闪烁）
+//        GPIO_WriteBit(GPIOC, GPIO_Pin_13, 
+//                     (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_13)));
+//        
+//        // 清除中断标志位（必须执行，否则会重复触发中断）
+//        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+//    }
+//}
+//int main(void)
+//{
+//    // 初始化GPIO和定时器
+//    GPIO_Config();
+//    TIM3_Config();
+//    
+//    // 主循环（中断自动处理LED闪烁）
+//    while(1)
+//    {
+//        // 无需额外操作，中断自动执行
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//#include "stm32f10x.h"
+//int main(void)
+//{
+//    GPIO_InitTypeDef GPIO_InitStructure;
+//    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+//    GPIO_InitStructure.GPIO_Pin =GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_13;
+//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+//    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//    GPIO_Init(GPIOC, &GPIO_InitStructure);
+//	
+//	
+//    while(1)
+//    {
+//        
+//       GPIO_SetBits(GPIOC,GPIO_Pin_13);
+//			
+//			for(int i=0;i<1000000;i++){};
+//			
+//			 GPIO_ResetBits(GPIOC,GPIO_Pin_13);
+//			for(int i=0;i<1000000;i++){};
+//			
+//       
+//}}
