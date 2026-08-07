@@ -5,7 +5,7 @@
 
 
 
-## 马浩天
+## mahaotian
 | 单倍体 | 双倍体|
 | ---- | ---- |
 | ![单倍体](Material/mahaotian_pcb_3d.png)| ![双倍体](Material/mahaotian_3d_plus.png) |
